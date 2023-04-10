@@ -47,3 +47,12 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return ShoppingCart.objects.filter(user=self.request.user)
+
+    @action(methods=('delete',),
+            detail=False,
+            url_path=('delete'))
+    def delete_cart(self, request):
+        user = self.request.user
+        cart = get_object_or_404(ShoppingCart, user=user)
+        cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
