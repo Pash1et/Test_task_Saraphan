@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ShoppingCart, ProductInShoppingCart
+
+from .models import ProductInShoppingCart, ShoppingCart
 
 
 class ProductInShoppingCartInLine(admin.TabularInline):
