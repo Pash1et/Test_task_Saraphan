@@ -9,7 +9,8 @@ from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
 from products.models import Product
 from shoppingcart.models import ShoppingCart
 from .serializers import (AddProductInShoppingCart, CategorySerialier,
-                          ShoppingCartSerializer, ProductsSerializer)
+                          ShoppingCartSerializer, ProductsSerializer,
+                          ProductInShoppingCart)
 from categories.models import Category
 
 
@@ -50,9 +51,22 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
 
     @action(methods=('delete',),
             detail=False,
-            url_path=('delete'))
+            url_path=('delete'),
+            permission_classes=(IsAuthenticated,))
     def delete_cart(self, request):
         user = self.request.user
         cart = get_object_or_404(ShoppingCart, user=user)
         cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=('delete',),
+            detail=True,
+            permission_classes=(IsAuthenticated,))
+    def delete_item(self, request, pk):
+        user = request.user
+        product = get_object_or_404(Product, pk=pk)
+        product_in_cart = get_object_or_404(ProductInShoppingCart,
+                                            product=product,
+                                            cart=user.user_cart)
+        product_in_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

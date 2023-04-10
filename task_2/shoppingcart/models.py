@@ -8,7 +8,8 @@ User = get_user_model()
 
 
 class ShoppingCart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name='user_cart')
 
     def __str__(self) -> str:
         return (f'Корзина пользователя: {self.user.username}, '
@@ -17,6 +18,12 @@ class ShoppingCart(models.Model):
     def total_price(self):
         return sum(
             [product.sum()
+             for product in ProductInShoppingCart.objects.filter(cart=self)]
+        )
+
+    def total_quantity(self):
+        return sum(
+            [product.quantity
              for product in ProductInShoppingCart.objects.filter(cart=self)]
         )
 
