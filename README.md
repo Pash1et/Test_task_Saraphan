@@ -13,7 +13,7 @@
  ```
 cd task_2/
  ```
-- Создать виртуальное окружение и зайти в него
+- Создать виртуальное окружение и активировать его
 ```
 python -m venv venv
 source venv/Scripts/activate  # для Windows
