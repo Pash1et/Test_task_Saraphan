@@ -48,7 +48,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         fields = ('user', 'cart', 'total_price', 'total_quantity')
 
 
-class AddProductInShoppingCart(serializers.ModelSerializer):
+class AddProductInShoppingCartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductInShoppingCart
@@ -68,3 +68,19 @@ class AddProductInShoppingCart(serializers.ModelSerializer):
                                                          quantity=quantity,
                                                          product=product)
         return shop_cart
+
+
+class QuantityProductInShoppinCartSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductInShoppingCart
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        quantity = validated_data.get('quantity')
+        product = validated_data.get('product')
+        cart = validated_data.get('cart')
+        shop_cart = ProductInShoppingCart.objects.filter(cart=cart,
+                                                         product=product)
+        shop_cart.update(cart=cart, quantity=quantity, product=product)
+        return shop_cart.first()

@@ -1,4 +1,3 @@
-
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import viewsets, status
@@ -8,8 +7,11 @@ from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
 
 from products.models import Product
 from shoppingcart.models import ShoppingCart
-from .serializers import (AddProductInShoppingCart, CategorySerialier,
-                          ShoppingCartSerializer, ProductsSerializer,
+from .serializers import (AddProductInShoppingCartSerializer,
+                          CategorySerialier,
+                          QuantityProductInShoppinCartSerializer,
+                          ShoppingCartSerializer,
+                          ProductsSerializer,
                           ProductInShoppingCart)
 from categories.models import Category
 
@@ -33,7 +35,7 @@ class ProductsListViewset(viewsets.ReadOnlyModelViewSet):
         cart, bool = ShoppingCart.objects.get_or_create(user=request.user)
         product = get_object_or_404(Product, slug=slug)
         quantity = request.data.get('quantity', 1)
-        serializer = AddProductInShoppingCart(
+        serializer = AddProductInShoppingCartSerializer(
             data={'product': product.pk, 'quantity': quantity, 'cart': cart.pk}
         )
         serializer.is_valid(raise_exception=True)
@@ -63,10 +65,25 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
             detail=True,
             permission_classes=(IsAuthenticated,))
     def delete_item(self, request, pk):
-        user = request.user
+        user_cart = request.user.user_cart
         product = get_object_or_404(Product, pk=pk)
         product_in_cart = get_object_or_404(ProductInShoppingCart,
                                             product=product,
-                                            cart=user.user_cart)
+                                            cart=user_cart)
         product_in_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=('patch',),
+            detail=True,
+            permission_classes=(IsAuthenticated,))
+    def change_quantity(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        quantity = request.data.get('quantity', 1)
+        cart = get_object_or_404(ShoppingCart, user=request.user)
+        serializer = QuantityProductInShoppinCartSerializer(
+            ProductInShoppingCart,
+            data={'product': product.pk, 'cart': cart.pk, 'quantity': quantity}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
