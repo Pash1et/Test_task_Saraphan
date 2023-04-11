@@ -15,12 +15,14 @@ from .serializers import (AddProductInShoppingCartSerializer,
                           ProductsSerializer,
                           QuantityProductInShoppinCartSerializer,
                           ShoppingCartSerializer)
+from .mixins import ReadOnlyViewSet
 
 
 class CategoryListViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CategorySerialier
     queryset = Category.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    lookup_field = 'slug'
 
 
 class ProductsListViewset(viewsets.ReadOnlyModelViewSet):
@@ -44,7 +46,7 @@ class ProductsListViewset(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ShoppingCartViewSet(viewsets.ModelViewSet):
+class ShoppingCartViewSet(ReadOnlyViewSet):
     serializer_class = ShoppingCartSerializer
     pagination_class = None
     permission_classes = (IsAuthenticated,)
@@ -57,7 +59,7 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
             url_path=('delete'),
             permission_classes=(IsAuthenticated,))
     def delete_cart(self, request):
-        user = self.request.user
+        user = request.user
         cart = get_object_or_404(ShoppingCart, user=user)
         cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
