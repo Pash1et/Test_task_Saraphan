@@ -1,19 +1,20 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated)
 
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+
+from categories.models import Category
 from products.models import Product
 from shoppingcart.models import ShoppingCart
+
 from .serializers import (AddProductInShoppingCartSerializer,
-                          CategorySerialier,
-                          QuantityProductInShoppinCartSerializer,
-                          ShoppingCartSerializer,
+                          CategorySerialier, ProductInShoppingCart,
                           ProductsSerializer,
-                          ProductInShoppingCart)
-from categories.models import Category
+                          QuantityProductInShoppinCartSerializer,
+                          ShoppingCartSerializer)
 
 
 class CategoryListViewSet(viewsets.ReadOnlyModelViewSet):
